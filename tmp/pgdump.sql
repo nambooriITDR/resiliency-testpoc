@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict B8sI4n0fV3Dl3JBBLGbMWt30ikZRgIGfHoP4SpUFgsgzUqeaQKpVYCewrXxhB2N
+\restrict ma0bBpBE6uot1l9TVncAnLF7i1Dlf3bOjD6C7exqha2YxnSb6Rj0F8IvPsz6ISl
 
 -- Dumped from database version 15.19 (Debian 15.19-1.pgdg13+2)
 -- Dumped by pg_dump version 15.19 (Debian 15.19-1.pgdg13+2)
@@ -84,8 +84,14 @@ ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_
 --
 
 COPY public.posts (id, content) FROM stdin;
-1	demo-record-001
-2	demo-record-101
+1	recovery-test-001
+2	recovery-test-001
+3	recovery-test-001
+4	recovery-test-002
+5	recovery-test-001
+6	recovery-test-002
+7	recovery-test-001
+8	recovery-test-002
 \.
 
 
@@ -93,7 +99,7 @@ COPY public.posts (id, content) FROM stdin;
 -- Name: posts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: pocuser
 --
 
-SELECT pg_catalog.setval('public.posts_id_seq', 2, true);
+SELECT pg_catalog.setval('public.posts_id_seq', 8, true);
 
 
 --
@@ -115,5 +121,5 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict B8sI4n0fV3Dl3JBBLGbMWt30ikZRgIGfHoP4SpUFgsgzUqeaQKpVYCewrXxhB2N
+\unrestrict ma0bBpBE6uot1l9TVncAnLF7i1Dlf3bOjD6C7exqha2YxnSb6Rj0F8IvPsz6ISl
 

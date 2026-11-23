@@ -409,47 +409,110 @@ print('Created: Resiliency_Test_POC_Document.docx')
 
 This script turns the project into a printable tracking document for review and publication.
 
-## Demo workflow
+## Run the POC after cloning (Windows PowerShell)
 
-### 1. Start the environment
+These steps assume you have installed and started Docker Desktop with Docker
+Compose available. Run the commands from the cloned repository folder (the
+folder containing `docker-compose.yml`). Cloning the repository is the first
+step; verify that PowerShell is in the right folder before starting:
+
 ```powershell
-cd "C:\Users\preet\resiliency-testpoc"
+Test-Path .\docker-compose.yml
+```
+
+The result should be `True`. This is a demo lab, not a production environment;
+the destructive test below deletes files and database data.
+
+### 1. Start the services
+
+```powershell
 docker compose up -d --build
+docker compose ps
 ```
 
-### 2. Create workload data
+Wait for PostgreSQL to accept connections, then start Flask again to avoid a
+startup race while PostgreSQL initializes:
+
 ```powershell
-curl.exe -s -X POST http://localhost:8080/create -H "Content-Type: application/json" -d '{"content":"demo-record-001"}'
-curl.exe -s -X POST http://localhost:8080/create -H "Content-Type: application/json" -d '{"content":"demo-record-002"}'
+docker compose exec -T postgres pg_isready -U pocuser -d pocdb
+docker compose up -d flask
 ```
 
-### 3. Run backup
+If `pg_isready` says the server is not accepting connections, wait a few
+seconds and run it again. Check service output if a container is not running:
+
 ```powershell
+docker compose logs --tail 100 postgres flask minio
+```
+
+### 2. Check the API and create test data
+
+```powershell
+Invoke-RestMethod http://localhost:8080/
+$payload = @{ content = "recovery-test-001" } | ConvertTo-Json -Compress
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/create `
+  -ContentType "application/json" -Body $payload
+Invoke-RestMethod http://localhost:8080/list
+```
+
+Create a clearly identifiable test file. The backup covers files in
+`app_files` as well as the database dump:
+
+```powershell
+New-Item -ItemType Directory -Force .\app_files | Out-Null
+Set-Content -Path .\app_files\recovery-test.txt -Value "File recovery test"
+```
+
+### 3. Initialize Restic and take a backup
+
+Initialize the backup repository once per fresh MinIO data volume. If
+initialization reports that MinIO is not ready yet, wait briefly and retry.
+
+```powershell
+docker compose run --rm restic init
 docker compose exec -T postgres pg_dump -U pocuser pocdb -f /tmp/pgdump.sql
 docker compose run --rm restic backup /tmp/pgdump.sql /app_files
+docker compose run --rm restic snapshots
 ```
 
-### 4. Simulate ransomware or destructive attack
+Confirm that the backup command reports a saved snapshot before continuing.
+
+### 4. Simulate data loss (destructive)
+
+Only continue after confirming the snapshot exists. These commands remove the
+test files from `app_files` and delete the database schema:
+
 ```powershell
 Remove-Item -Recurse -Force .\app_files\*
-docker compose exec -T postgres psql -U pocuser -d pocdb -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+docker compose exec -T postgres psql -U pocuser -d pocdb `
+  -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 ```
 
-### 5. Restore from snapshot
+### 5. Restore the database and files
+
+Restore into a separate directory so this test does not overwrite existing
+contents under `tmp\restore`:
+
 ```powershell
-docker compose run --rm restic restore latest --target /tmp/restore
-docker compose exec -T postgres psql -U pocuser -d pocdb -f /tmp/restore/tmp/pgdump.sql
+docker compose run --rm restic restore latest --target /tmp/recovery
+docker compose exec -T postgres psql -U pocuser -d pocdb `
+  -f /tmp/recovery/tmp/pgdump.sql
+Copy-Item -Path .\tmp\recovery\app_files\* `
+  -Destination .\app_files\ -Recurse -Force
 ```
 
-### 6. Validate recovery
+### 6. Verify recovery and stop the lab
+
 ```powershell
-curl.exe -s http://localhost:8080/list
+Invoke-RestMethod http://localhost:8080/list
+Get-Content .\app_files\recovery-test.txt
+docker compose down
 ```
 
-Successful recovery means:
-- the record list includes the original content again
-- files exist in the application folder again
-- the schema and data are no longer destroyed
+Confirm that the API returns `recovery-test-001` and the file contains
+`File recovery test`. `docker compose down` stops and removes the containers
+but preserves the named database and MinIO volumes. Do not add `-v` unless you
+intend to delete those volumes and all stored test data.
 
 ## Verified runtime behavior
 The following were validated during setup and testing:
