@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 21gerpYRMTVoEVmMMjiqwjXDRMfw016eEE4e4mvPO2MQ7v6jy3lbnklw5VypMYo
+\restrict DctQ2ygGINGmCvLgoPeoinuEpozyOvMq5T3rdwsXnIi7Uya18Q7t2Ppwxi8mInC
 
 -- Dumped from database version 15.19 (Debian 15.19-1.pgdg13+2)
 -- Dumped by pg_dump version 15.19 (Debian 15.19-1.pgdg13+2)
@@ -17,6 +17,22 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: pocuser
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO pocuser;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: pocuser
+--
+
+COMMENT ON SCHEMA public IS '';
+
 
 SET default_tablespace = '';
 
@@ -70,6 +86,14 @@ ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_
 COPY public.posts (id, content) FROM stdin;
 1	recovery-test-001
 2	recovery-test-001
+3	recovery-test-001
+4	recovery-test-002
+5	recovery-test-001
+6	recovery-test-002
+7	recovery-test-001
+8	recovery-test-002
+9	recovery-test-001
+10	recovery-test-002
 \.
 
 
@@ -77,7 +101,7 @@ COPY public.posts (id, content) FROM stdin;
 -- Name: posts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: pocuser
 --
 
-SELECT pg_catalog.setval('public.posts_id_seq', 2, true);
+SELECT pg_catalog.setval('public.posts_id_seq', 10, true);
 
 
 --
@@ -89,8 +113,15 @@ ALTER TABLE ONLY public.posts
 
 
 --
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pocuser
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 21gerpYRMTVoEVmMMjiqwjXDRMfw016eEE4e4mvPO2MQ7v6jy3lbnklw5VypMYo
+\unrestrict DctQ2ygGINGmCvLgoPeoinuEpozyOvMq5T3rdwsXnIi7Uya18Q7t2Ppwxi8mInC
 

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ma0bBpBE6uot1l9TVncAnLF7i1Dlf3bOjD6C7exqha2YxnSb6Rj0F8IvPsz6ISl
+\restrict DctQ2ygGINGmCvLgoPeoinuEpozyOvMq5T3rdwsXnIi7Uya18Q7t2Ppwxi8mInC
 
 -- Dumped from database version 15.19 (Debian 15.19-1.pgdg13+2)
 -- Dumped by pg_dump version 15.19 (Debian 15.19-1.pgdg13+2)
@@ -92,6 +92,8 @@ COPY public.posts (id, content) FROM stdin;
 6	recovery-test-002
 7	recovery-test-001
 8	recovery-test-002
+9	recovery-test-001
+10	recovery-test-002
 \.
 
 
@@ -99,7 +101,7 @@ COPY public.posts (id, content) FROM stdin;
 -- Name: posts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: pocuser
 --
 
-SELECT pg_catalog.setval('public.posts_id_seq', 8, true);
+SELECT pg_catalog.setval('public.posts_id_seq', 10, true);
 
 
 --
@@ -121,5 +123,5 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ma0bBpBE6uot1l9TVncAnLF7i1Dlf3bOjD6C7exqha2YxnSb6Rj0F8IvPsz6ISl
+\unrestrict DctQ2ygGINGmCvLgoPeoinuEpozyOvMq5T3rdwsXnIi7Uya18Q7t2Ppwxi8mInC
 
